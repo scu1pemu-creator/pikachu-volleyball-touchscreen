@@ -1,0 +1,42 @@
+name: Deploy GitHub Pages with Build
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build # package.json에 정의된 빌드 명령어를 실행합니다.
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # 보통 빌드가 완료되면 dist 또는 build 폴더가 생성됩니다.
+          # Vite를 쓰신다면 'dist', 다른 도구라면 해당 빌드 결과물 폴더명을 적어주세요.
+          path: './dist' 
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
